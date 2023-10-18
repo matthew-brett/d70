@@ -54,7 +54,9 @@ t
 
 Trying to set any value contained in the tuple raises an error:
 
-```{python tags=c("raises-exception")}
+```{python}
+#| tags: [raises-exception]
+
 t[1] = 99
 ```
 
@@ -71,7 +73,9 @@ t[1] = 99
 Strings are containers for characters — a string represents a sequence of
 characters.  They are immutable.
 
-```{python tags=c("raises-exception")}
+```{python}
+#| tags: [raises-exception]
+
 # Setting character in string raises error
 s = 'My string'
 s[1] = 'i'

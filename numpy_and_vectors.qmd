@@ -147,7 +147,9 @@ x_as_list
 
 Adding a scalar to a list causes an error:
 
-```{python tags=c("raises-exception")}
+```{python}
+#| tags: [raises-exception]
+
 x_as_list + c
 ```
 

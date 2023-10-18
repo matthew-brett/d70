@@ -40,12 +40,16 @@ assert 10 % 2 == 0
 These expressions are equivalent to False, and the asserts do
 raise errors:
 
-```{python tags=c("raises-exception")}
+```{python}
+#| tags: [raises-exception]
+
 # Raises error
 assert False
 ```
 
-```{python tags=c("raises-exception")}
+```{python}
+#| tags: [raises-exception]
+
 # Raises error
 assert 10 == 11
 ```
@@ -61,7 +65,9 @@ testing <truthiness>` to decide whether to raise an
 assert ['some', 'elements']  # not-empty list tests as True
 ```
 
-```{python tags=c("raises-exception")}
+```{python}
+#| tags: [raises-exception]
+
 # Error
 assert []  # an empty list tests as False
 ```
@@ -72,12 +78,16 @@ assert 10  # any number other than zero evaluates as True
 assert 1
 ```
 
-```{python tags=c("raises-exception")}
+```{python}
+#| tags: [raises-exception]
+
 # Error
 assert 0
 ```
 
-```{python tags=c("raises-exception")}
+```{python}
+#| tags: [raises-exception]
+
 # Error
 assert None
 ```

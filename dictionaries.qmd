@@ -160,7 +160,9 @@ Perhaps you noticed that we didn't use "Manchester United" or "Manchester City" 
 
 We didn't use "Manchester United" with `dict` because it would have failed with an error:
 
-```{python tags=c("raises-exception")}
+```{python}
+#| tags: [raises-exception]
+
 bad_dict = dict(Manchester United=212_135_000)
 ```
 

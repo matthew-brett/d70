@@ -11,3 +11,4 @@ _references.bib
 *_files/
 /.quarto/
 *.html
+site_libs/
