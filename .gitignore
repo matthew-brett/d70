@@ -8,5 +8,5 @@ _references.bib
 .ok_storage
 *.ipynb
 *.orig
-
+*_files/
 /.quarto/
