@@ -10,3 +10,4 @@ _references.bib
 *.orig
 *_files/
 /.quarto/
+*.html
