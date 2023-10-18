@@ -8,26 +8,26 @@ book:
   chapters:
     - part: coding_background.md
       chapters:
-      - assert.Rmd
-      - arrays_and_images.Rmd
-      - where_and_argmin.Rmd
-      - where_2d.Rmd
-      - image_for_optimize.Rmd
-      - pathlib.Rmd
-      - dictionaries.Rmd
-      - pandas_and_dicts.Rmd
-      - lambda_functions.Rmd
+      - assert.qmd
+      - arrays_and_images.qmd
+      - where_and_argmin.qmd
+      - where_2d.qmd
+      - image_for_optimize.qmd
+      - pathlib.qmd
+      - dictionaries.qmd
+      - pandas_and_dicts.qmd
+      - lambda_functions.qmd
     - part: reading_formulae.md
       chapters:
-      - numpy_and_vectors.Rmd
-      - algebra_of_sums.Rmd
-      - lin_regression_notation.Rmd
-      - lin_regression_multiple_predictors.Rmd
+      - numpy_and_vectors.qmd
+      - algebra_of_sums.qmd
+      - lin_regression_notation.qmd
+      - lin_regression_multiple_predictors.qmd
     - part: data_work
     - part: tools
       chapters:
       - installation.md
-      - the-problem-with-notebooks.Rmd
+      - the-problem-with-notebooks.qmd
     - references.md
 
 crossref:
