@@ -12,6 +12,10 @@ from jupyprint import jupyprint, arraytex
 
 # For interactive widgets.
 from ipywidgets import interact
+
+from IPython.display import display, Markdown
+
+jupyprint = lambda s : display(Markdown(s))
 ```
 
 ```{python}
