@@ -5,4 +5,4 @@ book:
   chapters:
     - index.qmd
     - test1.qmd
-    - lin_regression_multiple_predictors.qmd
+    - test3.qmd
