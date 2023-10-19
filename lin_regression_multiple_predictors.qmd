@@ -7,9 +7,6 @@ import numpy.linalg as npl
 import matplotlib.pyplot as plt
 import pandas as pd
 
-# For displaying variables in mathematical form.
-from jupyprint import jupyprint, arraytex
-
 # For interactive widgets.
 from ipywidgets import interact
 
