@@ -1,23 +1,11 @@
 # Title
 
 ```{python}
-import numpy as np
-import numpy.linalg as npl
-import matplotlib.pyplot as plt
-
 from ipywidgets import interact
 
 from IPython.display import display, Markdown
 
 jupyprint = lambda s : display(Markdown(s))
-```
-
-```{python}
-education = np.array([ 86,  76,  92,  90,  86,  84,  93, 100,  87,  86,
-74,
-                      98,  97, 84,  91])
-prestige = np.array([82, 83, 90, 76, 90, 87, 93, 90, 52, 88, 57, 89, 97, 59, 73])
-income = np.array([62, 72, 75, 55, 64, 21, 64, 80, 67, 72, 42, 76, 76, 41, 48])
 ```
 
 ```{python}
