@@ -15,20 +15,11 @@ from ipywidgets import interact
 ```
 
 ```{python}
-# read in the data
-df = pd.read_csv("data/Duncan_Occupational_Prestige.csv")
-
-# restrict our attention to the first 15 rows
-df = df.head(15)
-
-# show the data
-df
-```
-
-```{python}
-education = np.array(df['education'])
-prestige = np.array(df['prestige'])
-income = np.array(df['income'])
+education = np.array([ 86,  76,  92,  90,  86,  84,  93, 100,  87,  86,
+74,
+                      98,  97, 84,  91])
+prestige = np.array([82, 83, 90, 76, 90, 87, 93, 90, 52, 88, 57, 89, 97, 59, 73])
+income = np.array([62, 72, 75, 55, 64, 21, 64, 80, 67, 72, 42, 76, 76, 41, 48])
 ```
 
 ```{python}
