@@ -2,7 +2,7 @@ project:
   type: book
 
 book:
-  title: "Book"
   chapters:
-    - index.md
+    - index.qmd
+    - test1.qmd
     - lin_regression_multiple_predictors.qmd

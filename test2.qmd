@@ -1,0 +1,18 @@
+# Title
+
+```{python}
+from ipywidgets import interact
+```
+
+```{python}
+from jupyprint import jupyprint
+```
+
+```{python}
+def interactive_notation(edu_slope_guess=1,
+                         inc_slope_guess=0.37,
+                         intercept_guess=58):
+    jupyprint("$\\vec{\\hat{y}} = b_1 * $ `education` + $b_2 * $ `income` +   $\\text{c} $")
+
+interact(interactive_notation, edu_slope_guess = (-1, 1, 0.1), inc_slope_guess = (-1, 1, 0.1), intercept_guess = (-10, 10, 0.1))
+```
