@@ -333,3 +333,578 @@ min_ss = minimize(ss_any_line, # the function we are minimizing
                   args=(education, prestige)) # other arguments to give to the `minimize` function
 min_ss
 ```
+
+Let's pull out our parameter estimates, from the output of `minimize`, so that
+we can compare them to the values we got above from `scipy.stats.linregress`:
+
+```{python}
+# get out our parameter estimates
+min_ss.x
+```
+
+```{python}
+# compare the slope of the best-fitting line we got from scipy.stats.linregress
+jupyprint(f'linregress slope:  {b_education}')
+```
+
+```{python}
+# compare the intercept of the best-fitting line we got from scipy.stats.linregress
+jupyprint(f'linregress intercept: {c_education}')
+```
+
+Both of these approaches (using `scipy.stats.linregress` or using `minimize`
+with our cost function `ss_any_line`) return the same (near as dammit)
+parameter estimates.   This is because `linregress` uses the mathematical
+shortcut to the calculation of the least-squares slope and intercept.  That is,
+the mathematics behind `linregress` is using the sum-of-squares (or mean square
+or root mean square) cost function.
+
+The benefit of writing our own cost function is firstly that it gives us
+a better understanding of how we are getting our parameter estimates, and
+secondly that we can customize the cost function. Minimizing cost functions is
+a key concept in machine learning, so you can think of this approach as
+a foundational machine learning concept, applying to newer machine learning
+methods, as well as to classical statistical methods like linear regression.
+
+Let's just recap how the process of fitting a linear regression model (with one
+predictor variable) works, with reference to the mathematical notation:
+
+$\begin{bmatrix}{} \text{$y_{1}$} \\ \text{$y_{2}$} \\ \text{$y_{3}$} \\ \text{$y_{4}$} \\ \text{$y_{5}$} \\ \text{$y_{6}$} \\ \text{$y_{7}$} \\ \text{$y_{8}$} \\ \text{$y_{9}$} \\ \text{$y_{10}$} \\ \text{$y_{11}$} \\ \text{$y_{12}$} \\ \text{$y_{13}$} \\ \text{$y_{14}$} \\ \text{$y_{15}$} \\ \end{bmatrix} = b * \begin{bmatrix}{} \text{$x_{1}$} \\ \text{$x_{2}$} \\ \text{$x_{3}$} \\ \text{$x_{4}$} \\ \text{$x_{5}$} \\ \text{$x_{6}$} \\ \text{$x_{7}$} \\ \text{$x_{8}$} \\ \text{$x_{9}$} \\ \text{$x_{10}$} \\ \text{$x_{11}$} \\ \text{$x_{12}$} \\ \text{$x_{13}$} \\ \text{$x_{14}$} \\ \text{$x_{15}$} \\ \end{bmatrix} + c + \begin{bmatrix}{} \text{$\varepsilon_{1}$} \\ \text{$\varepsilon_{2}$} \\ \text{$\varepsilon_{3}$} \\ \text{$\varepsilon_{4}$} \\ \text{$\varepsilon_{5}$} \\ \text{$\varepsilon_{6}$} \\ \text{$\varepsilon_{7}$} \\ \text{$\varepsilon_{8}$} \\ \text{$\varepsilon_{9}$} \\ \text{$\varepsilon_{10}$} \\ \text{$\varepsilon_{11}$} \\ \text{$\varepsilon_{12}$} \\ \text{$\varepsilon_{13}$} \\ \text{$\varepsilon_{14}$} \\ \text{$\varepsilon_{15}$} \\ \end{bmatrix}$
+
+Let's think about what the `minimize` function is doing here, with reference to
+this notation:
+
+- Our $x$ and $y$ vectors are fixed, they are given by our dataset (in our case
+  `education` is our $x$ vector and `prestige` is our $y$ vector).
+- We write a cost function (`ss_any_line`) which takes a value of $b$ and $c$
+  and then returns the "cost" for those parameters, given our our $x$ and $y$
+  vectors.
+  - It does this by generating fitted values using $b$ and $c$,
+  subtracting these fitted values from the actual `prestige` scores to generate
+  the error vector, and then squaring the values in the error vector and adding
+  them up (to calculate the sum of squared error for this specific $b$ and $c$
+  pairing).
+- We pass our cost function to `minimize` and it tries multiple $b$ and $c$
+  pairs until it finds the pair that gives the lowest value of the cost
+  function, out of all possible $b$ and $c$ pairs.
+
+## Exploring other models
+
+So far we've refreshed our knowledge of how we can use `minimize` on the sum of
+squared errors cost function (`ss_any_line`) to get our parameter estimates
+($b$ and $c$) for linear regression.
+
+We've done this using `education` as our predictor, and `prestige` as our
+outcome.
+
+However, there are other potential predictor variables in the Duncan dataset,
+which might be relevant to predicting occupational `prestige`.
+
+```{python}
+# Showing the data, again.
+df
+```
+
+Let's investigate the relationship between `income` and `prestige`. Reasonably,
+we might predict *a priori* (before analysing the data) that higher paid jobs
+might be more prestigious.
+
+Let's store our `income` scores as a separate python variable.
+
+```{python}
+# Store the education values as a variable.
+income = np.array(df['income'])
+
+# Show the values.
+income
+```
+
+> **Before we continue**: we would like you to do an exercise, for some practice.
+>
+> We would like you to fit the following model, using the `scipy.optimize`
+method first, then checking your results with the `scipy.stats.linregress`
+method:
+>
+> `prestige` = $b * $ `income` + $ \text{c} + \vec{\varepsilon} $
+
+The cell below shows the model, with the actual data in the vectors:
+
+```{python}
+# do not worry about this code, it just generates the printout below
+jupyprint(f"${arraytex(np.atleast_2d(prestige).T)} = b * {arraytex(np.atleast_2d(income).T)} + c +" +" \\begin{bmatrix}{} \\text{$\\varepsilon_{1}$} \\\\ \\text{$\\varepsilon_{2}$} \\\\ \\text{$\\varepsilon_{3}$} \\\\ \\text{$\\varepsilon_{4}$} \\\\ \\text{$\\varepsilon_{5}$} \\\\ \\text{$\\varepsilon_{6}$} \\\\ \\text{$\\varepsilon_{7}$} \\\\ \\text{$\\varepsilon_{8}$} \\\\ \\text{$\\varepsilon_{9}$} \\\\ \\text{$\\varepsilon_{10}$} \\\\ \\text{$\\varepsilon_{11}$} \\\\ \\text{$\\varepsilon_{12}$} \\\\ \\text{$\\varepsilon_{13}$} \\\\ \\text{$\\varepsilon_{14}$} \\\\ \\text{$\\varepsilon_{15}$} \\\\ \\end{bmatrix}$")
+```
+
+```{python}
+# fit your model here
+```
+
+Let's use `minimize` and the `ss_any_line` cost function to find values of the
+slope $b$ and the intercept $c$ which give us the best-fitting line, when we
+use linear regression to predict `prestige` from `income`:
+
+```{python}
+# prestige = b * income + c + error
+min_ss_income = minimize(ss_any_line,
+                         initial_guess,
+                         args=(income, prestige))
+
+# get the values of the slope and intercept pair
+b_income = min_ss_income.x[0]
+c_income = min_ss_income.x[1]
+```
+
+```{python}
+# show the slope from the linear regression using income as a predictor
+b_income
+```
+
+```{python}
+# show the intercept from the linear regression using income as a predictor
+c_income
+```
+
+Let's compare these, once more, to the parameter estimates we get from `scipy.stats.linregress`, when we use linear regression to predict `prestige` from `income`
+
+```{python}
+# Compare this to scipy.stats.linregress.
+sps.linregress(income, prestige)
+```
+
+The graph below shows the best fitting line for the model `prestige`
+= $b *$ `income` + $c$ + $\vec{\varepsilon}$
+
+```{python}
+# show the linear regression, predicting `prestige` from `income`
+errors_income = make_scatter(b = b_income,
+                             c = c_income,
+                             x = income,
+                             xlabel = "Income",
+                             with_errors = True,
+                             return_errors = True,
+                             show = True)
+```
+
+## Expanding the model - multiple predictors
+
+So far we have fit two *separate* linear regression models.
+
+Each separate model is shown below, in vector form, with the actual data and
+error values in the relevant vectors, as well as the parameter estimates
+obtained from each linear regression:
+
+```{python}
+# do not worry about this code, it just prints the mathematical notation below this cell
+jupyprint("Here is the our model (`prestige` = $b * $ `education` + $ \\text{c} + \\vec{\\varepsilon} $), showing the actual values within the `education`, `prestige` and error vectors:")
+jupyprint(f"${arraytex(np.atleast_2d(prestige).T)} = {b_education.round(2)} * {arraytex(np.atleast_2d(education).T)} + {c_education.round(2)} + {arraytex(np.atleast_2d(errors_education.round(2)).T)} $")
+# do not worry about this code, it just prints the mathematical notation below this cell
+jupyprint("Here is the our model (`prestige` = $b * $ `income` + $ \\text{c} + \\vec{\\varepsilon} $), showing the actual values within the `income`, `prestige` and error vectors:")
+jupyprint(f"${arraytex(np.atleast_2d(prestige).T)} = {b_income.round(2)} * {arraytex(np.atleast_2d(income).T)} + {c_income.round(2)} + {arraytex(np.atleast_2d(errors_income.round(2)).T)}$")
+```
+
+The fitted values from each separate linear regression are shown in the output
+of the cell below. You'll notice that the two models give different fitted
+values. You can think of each of these regressions as modeling the linear
+relationship between each predictor and the outcome variable if we **ignore**
+the other predictor.
+
+Generally, when exploring datasets and doing data science, we will be
+interested in more than one predictor. We may want to **take into account**
+another predictor when we get our parameter estimates.
+
+```{python}
+jupyprint("Here are the fitted values $\hat{y}$ from the (`prestige` = $b * $ `education` + $ \\text{c} + \\vec{\\varepsilon} $) model:")
+jupyprint(f"${arraytex(np.atleast_2d(b_education* education + c_education).round(2).T)} = {b_education.round(2)} * {arraytex(np.atleast_2d(education).T)} + {c_education.round(2)}$")
+jupyprint("Here are the fitted values $\hat{y}$ from the (`prestige` = $b * $ `income` + $ \\text{c} + \\vec{\\varepsilon} $) model:")
+jupyprint(f"${arraytex(np.atleast_2d(b_income* income + c_income).round(2).T)} = {b_income.round(2)} * {arraytex(np.atleast_2d(income).T)} + {c_income.round(2)}$")
+```
+
+In most cases we will want a model where the fitted values take into account
+information from *both* predictor variables.
+
+You've already seen that it is possible to include multiple predictors in
+a linear regression model on the previous [multiple regression
+page](https://lisds.github.io/textbook/classification/Multiple_Regression.html). 
+
+In fact, the original model Duncan fit included both `education` and `income`
+as predictor variables - (and as mentioned previously, the parameter estimates
+were calculated with a mechanical calculator, a labor which we will not subject
+you to!).
+
+**But how might we express the inclusion of multiple predictors in the
+mathematical notation that we've already seen for linear regression models?**
+
+You can think of it this way, we want to include a second predictor variable in
+our model. One way of saying this is that we are including a second predictor
+*vector* in our model. So we need to include a second predictor vector in the
+mathematical notation.
+
+Remember the meaning of the slope? It relates the predictor variable to the
+outcome variable by describing how the outcome variable changes as the
+predictor variable scores change (where "change" refers to a comparison of the
+predictor variable and outcome variable scores of different observational
+units).
+
+Therefore, if we include a second predictor vector, we will also want a second
+slope in the model. So if our original single-predictor model was:
+
+`prestige` = $b * $ `education` + $ \text{c} + \vec{\varepsilon} $
+
+If we want to include `income` as a second predictor in the model, we could write this as:
+
+`prestige` =  $b_1 * $ `education` + $b_2 * $ `income` + $ \text{c} + \vec{\varepsilon} $
+
+You'll notice there are now two slopes $b_1$ and $b_2$. 
+
+* $b_1$ relates changes in `education` to changes in `prestige`.
+* $b_2$ relates changes in `income` to changes in `prestige`.
+
+We keep the form of the relationship between each slope and each predictor the
+same (e.g. the predictor vector gets multiplied by the slope for that
+predictor) in order that the model is still a *linear* regression - if we
+changed the form of the slope/predictor relationship, say, by raising the slope
+to the power of the predictor values, then the model would be nonlinear.
+
+We have only one intercept term for reasons we will explain later (for now you
+can just think of the intercept as allowing us to be more flexible in the model
+we fit, allowing us to fit it better to a wider variety of datasets).
+
+Remember that our predictor vector `education` can also be referred to by its
+mathematical name $\vec{x}$? We might want to use different symbols to refer to
+our second slope and second predictor, so we could write something like:
+
+$
+\vec{y} = b_1 \vec{x} + b_2 \vec{w} + c + \vec{\varepsilon}
+$
+
+Where in our case:
+
+* $\vec{y}$ would be our `prestige` vector (e.g. our *outcome* variable).
+* $\vec{x}$ would be our `education` vector (e.g. our *first* predictor
+  variable - the slope for this predictor is $b_1$).
+* $\vec{w}$ would be our `income` vector (e.g. our  *second* predictor variable
+  — the slope for this predictor is $b_2$).
+
+However, if we include extra predictors (three, or four, or five...) then we
+will have to use new symbols for each one, which will get cumbersome.
+
+
+Instead we add a subscript to the mathematical notation for each predictor
+variable, like this:
+
+$ \vec{x_1} = \vec{x} = $ `education`
+
+$ \vec{x_2} = \vec{w} = $ `income`
+
+We can then refer to each predictor vector as "the $x$ *one* vector" for
+$\vec{x_1}$ and the "the $x$ *two* vector" for $\vec{x_2}$.
+
+**If we had additional predictor variables (e.g. more than two) we can extend
+this notation to as many variables as we like, $\vec{x_3}$ for the third
+predictor variable, $\vec{x_4}$ for the fourth predictor variable and so
+on...**
+
+We can refer to each of the values within each vector using this notation:
+
+`education` = $ \vec{x_1} = \begin{bmatrix}{} x_{1_1}, \\ x_{1_2} \\ ... \\ x_{1_n}\end{bmatrix} $
+
+`income` = $\vec{x_2} = \begin{bmatrix}{} x_{2_1}, \\ x_{2_2} \\ ... \\ x_{2_n}\end{bmatrix}$
+
+So each $x$ value now has a number indicating which predictor vector it is part
+of (e.g. $x_{1}$ or $x_{2}$), and then has a second subscript indicating it's
+index location within each vector. So:
+
+* $x_{1_1}$ is the *first* value from $\vec{x_1}$
+* $x_{1_2}$ is the *second* value from $\vec{x_1}$
+* $x_{1_3}$ is the *third* value from $\vec{x_1}$
+* ...
+* $x_{1_{13}}$ is the *thirteenth* value from $\vec{x_1}$
+* $x_{1_{14}}$ is the *fourteenth* value from $\vec{x_1}$
+* $x_{1_{15}}$ is the *fifteenth* value from $\vec{x_1}$
+
+And:
+
+* $x_{2_1}$ is the *first* value from $\vec{x_2}$
+* $x_{2_2}$ is the *second* value from $\vec{x_2}$
+* $x_{2_3}$ is the *third* value from $\vec{x_2}$
+* ...
+* $x_{2_{13}}$ is the *thirteenth* value from $\vec{x_2}$
+* $x_{2_{14}}$ is the *fourteenth* value from $\vec{x_2}$
+* $x_{2_{15}}$ is the *fifteenth* value from $\vec{x_2}$
+
+Remember the advantage of mathematical notation like this is that it's general.
+It can be used to refer to datasets with more than 15 observations. You'll
+remember that `n` represents the total number of values within each vector, in
+our case $n = 15$, as there are 15 observations. So we can also write the final
+value in each vector as:
+
+* $\Large x_{1_n}$ is the *final* value from $ \Large \vec{x_1}$, which in this case has 15 values, so can also be written as $ \Large x_{1_{15}}$
+
+
+Now we can refer to our `education` as our $x_1$ vector and `income` as our
+$x_2$ vector, the whole model, with both predictors, in mathematical notations
+is:
+
+$ \vec{y} = b_1 \vec{x_1} + b_2 \vec{x_2} + \text{c} + \vec{\varepsilon} $
+
+We can write this using the Python names for the vectors we are using:
+
+`prestige` =  $b_1 * $ `education` + $b_2 * $ `income` + $ \text{c} + \vec{\varepsilon} $
+
+And here is the mathematical form, showing the mathematical notation for the
+values in each vector:
+
+$\begin{bmatrix}{} \text{$y_{1}$} \\ \text{$y_{2}$} \\ \text{$y_{3}$} \\ \text{$y_{4}$} \\ \text{$y_{5}$} \\ \text{$y_{6}$} \\ \text{$y_{7}$} \\ \text{$y_{8}$} \\ \text{$y_{9}$} \\ \text{$y_{10}$} \\ \text{$y_{11}$} \\ \text{$y_{12}$} \\ \text{$y_{13}$} \\ \text{$y_{14}$} \\ \text{$y_{15}$} \\ \end{bmatrix} = b_1 * \begin{bmatrix}{} \text{$x_{1_1}$} \\ \text{$x_{1_2}$} \\ \text{$x_{1_3}$} \\ \text{$x_{1_4}$} \\ \text{$x_{1_5}$} \\ \text{$x_{1_6}$} \\ \text{$x_{1_7}$} \\ \text{$x_{1_8}$} \\ \text{$x_{1_9}$} \\ \text{$x_{1_{10}}$} \\ \text{$x_{1_{11}}$} \\ \text{$x_{1_{12}}$} \\ \text{$x_{1_{13}}$} \\ \text{$x_{1_{14}}$} \\ \text{$x_{1_{15}}$} \\ \end{bmatrix} + b_2 *  \begin{bmatrix}{} \text{$x_{2_{1}}$} \\ \text{$x_{2_{2}}$} \\ \text{$x_{2_{3}}$} \\ \text{$x_{2_{4}}$} \\ \text{$x_{2_{5}}$} \\ \text{$x_{2_{6}}$} \\ \text{$x_{2_{7}}$} \\ \text{$x_{2_{8}}$} \\ \text{$x_{2_{9}}$} \\ \text{$x_{2_{10}}$} \\ \text{$x_{2_{11}}$} \\ \text{$x_{2_{12}}$} \\ \text{$x_{2_{13}}$} \\ \text{$x_{2_{14}}$} \\ \text{$x_{2_{15}}$} \\ \end{bmatrix}  +c + \begin{bmatrix}{} \text{$\varepsilon_{1}$} \\ \text{$\varepsilon_{2}$} \\ \text{$\varepsilon_{3}$} \\ \text{$\varepsilon_{4}$} \\ \text{$\varepsilon_{5}$} \\ \text{$\varepsilon_{6}$} \\ \text{$\varepsilon_{7}$} \\ \text{$\varepsilon_{8}$} \\ \text{$\varepsilon_{9}$} \\ \text{$\varepsilon_{10}$} \\ \text{$\varepsilon_{11}$} \\ \text{$\varepsilon_{12}$} \\ \text{$\varepsilon_{13}$} \\ \text{$\varepsilon_{14}$} \\ \text{$\varepsilon_{15}$} \\ \end{bmatrix}$
+
+The code cell below "fills in" the notation with the actual values from our
+vectors:
+
+```{python}
+# Do not worry about this code, it just prints the mathematical notation below
+# this cell.
+jupyprint("Here is the our model (`prestige` =  $b_1 * $ `education` + $b_2 * $ `income` + $ \\text{c} + \\vec{\\varepsilon}$), showing the actual values within the `education`, `income` and `prestige` vectors:")
+jupyprint(f"${arraytex(np.atleast_2d(prestige).T)} = b_1 * {arraytex(np.atleast_2d(education).T)} + b_2 * {arraytex(np.atleast_2d(income).T)} + c +" +" \\begin{bmatrix}{} \\text{$\\varepsilon_{1}$} \\\\ \\text{$\\varepsilon_{2}$} \\\\ \\text{$\\varepsilon_{3}$} \\\\ \\text{$\\varepsilon_{4}$} \\\\ \\text{$\\varepsilon_{5}$} \\\\ \\text{$\\varepsilon_{6}$} \\\\ \\text{$\\varepsilon_{7}$} \\\\ \\text{$\\varepsilon_{8}$} \\\\ \\text{$\\varepsilon_{9}$} \\\\ \\text{$\\varepsilon_{10}$} \\\\ \\text{$\\varepsilon_{11}$} \\\\ \\text{$\\varepsilon_{12}$} \\\\ \\text{$\\varepsilon_{13}$} \\\\ \\text{$\\varepsilon_{14}$} \\\\ \\text{$\\varepsilon_{15}$} \\\\ \\end{bmatrix}$")
+```
+
+Let's look at our vectors individually, to compare them to the notation:
+
+```{python}
+# prestige
+prestige
+```
+
+```{python}
+# education
+education
+```
+
+```{python}
+# income
+income
+```
+
+### We will now pause for an exercise...
+
+
+## Multiple linear regression using arbitrary guesses
+
+Now we are armed with the notation for linear regression models which include
+multiples predictors, let's look at the mechanics of fitting such models.
+
+Essentially, we now need to modify our cost function to accept two slopes and
+an extra predictor vector, as per the new model specification. Let's quickly
+recap the new model, with multiple predictors:
+
+`prestige` = $b_1 * $ `education` + $b_2 * $ `income` +  $ \text{c} + \vec{\varepsilon} $
+
+Which we can write in mathematical notation as:
+
+$ \vec{y} = b_1 \vec{x_1} + b_2 \vec{x_2} + \text{c} + \vec{\varepsilon} $
+
+- $\vec{x_1}$ is the `education` vector.
+- $\vec{x_2}$ is the `income` vector.
+- $b_1$ is the slope for `education`.
+- $b_2$ is the slope for `income`.
+- $c$ is the intercept (again, including this lets us fit our model more
+  flexibly, just as when we use a single predictor).
+- $\vec{\varepsilon}$ is the error vector.
+
+You'll notice that there is still **only one error vector** despite there now
+being two slopes. This is a key concept to appreciate, when we include extra
+predictors in the model.
+
+Recall that the procedure for fitting a linear regression with a single
+predictor variable is:
+
+- we write a cost function which takes a value of $b$ and $c$, and returns
+  a "cost" - e.g. a single value summary of how well the fitted values from
+  that value of $b$ and $c$ fit the data we have. 
+- Specifically, in our case, the cost function generates fitted values
+  ($\hat{y}$), using $b$ and $c$, and then subtracts these from our actual $y$
+  values, to give us the error vector $\vec{\varepsilon}$. The values
+  $\vec{\varepsilon}$ and then squared and added together, to give us the sum
+  of the squared error. Our cost function is shown below:
+
+```{python}
+def ss_any_line(b_and_c, x_vector, y_vector):
+    """ Sum of squares error for slope, intercept
+    """
+    # unpack the list containing the slope and the intercept
+    b, c = b_and_c
+
+    # calculate the fitted values, for this slope/intercept pairing
+    fitted = b*x_vector + c
+
+    # calculate the error vector
+    error = y_vector - fitted
+
+    # return the value of the cost function
+    return np.sum(error ** 2)
+```
+
+- We then pass our cost function to `minimize` and it tries multiple $b$ and $c$
+  pairs until it finds the pair that gives the lowest value of the cost
+  function (e.g. the lowest sum of the squared error), out of all possible $b$
+  and $c$ pairs.
+
+How do we include an extra predictor variable in this process? - *we include it
+in the computation of the fitted values*. When we have two predictors, we
+calculate our fitted values $\hat{y}$ as follows:
+
+$\vec{\hat{y}} = b_1 \vec{x_1} + b_2 \vec{x_2} + \text{c} $
+
+Or, showing the mathematical notation for the values within the vectors:
+
+$\begin{bmatrix}{} \text{$\hat{y_{1}}$} \\ \text{$\hat{y_{2}}$} \\ \text{$\hat{y_{3}}$} \\ \text{$\hat{y_{4}}$} \\ \text{$\hat{y_{5}}$} \\ \text{$\hat{y_{6}}$} \\ \text{$\hat{y_{7}}$} \\ \text{$\hat{y_{8}}$} \\ \text{$\hat{y_{9}}$} \\ \text{$\hat{y_{10}}$} \\ \text{$\hat{y_{11}}$} \\ \text{$\hat{y_{12}}$} \\ \text{$\hat{y_{13}}$} \\ \text{$\hat{y_{14}}$} \\ \text{$\hat{y_{15}}$} \\ \end{bmatrix} = b_1 * \begin{bmatrix}{} \text{$x_{1_1}$} \\ \text{$x_{1_2}$} \\ \text{$x_{1_3}$} \\ \text{$x_{1_4}$} \\ \text{$x_{1_5}$} \\ \text{$x_{1_6}$} \\ \text{$x_{1_7}$} \\ \text{$x_{1_8}$} \\ \text{$x_{1_9}$} \\ \text{$x_{1_{10}}$} \\ \text{$x_{1_{11}}$} \\ \text{$x_{1_{12}}$} \\ \text{$x_{1_{13}}$} \\ \text{$x_{1_{14}}$} \\ \text{$x_{1_{15}}$} \\ \end{bmatrix} + b_2 *  \begin{bmatrix}{} \text{$x_{2_{1}}$} \\ \text{$x_{2_{2}}$} \\ \text{$x_{2_{3}}$} \\ \text{$x_{2_{4}}$} \\ \text{$x_{2_{5}}$} \\ \text{$x_{2_{6}}$} \\ \text{$x_{2_{7}}$} \\ \text{$x_{2_{8}}$} \\ \text{$x_{2_{9}}$} \\ \text{$x_{2_{10}}$} \\ \text{$x_{2_{11}}$} \\ \text{$x_{2_{12}}$} \\ \text{$x_{2_{13}}$} \\ \text{$x_{2_{14}}$} \\ \text{$x_{2_{15}}$} \\ \end{bmatrix}  +c $
+
+You'll note that,  despite there now being two predictors and two slopes, *we
+still only get one set of fitted values*. That is what makes this a *multiple
+regression model* rather than two separate linear regressions. We performed two
+separate linear regressions near the start of this page, and they produced
+*two* separate vectors of fitted values, and *two* separate error vectors.
+
+Because the multiple predictor model takes into account **both** predictors
+when finding its parameter estimates, for any set of parameter estimates ($b_1,
+b_1, c $) we only get one vector of fitted values, and therefore we also have
+only one vector of error values (in the error vector $\vec{\varepsilon}$).
+
+**We square the values in $\vec{\varepsilon}$ and add them up to get our sum of
+squared error, for a specific combination of parameter estimates ($b_1, b_1,
+c $)**.
+
+We then use `minimize` to search for the combination of parameter estimates
+($b_1, b_1, c $) which give the lowest sum of the squared error, out of all
+possible combinations.
+
+This is exactly the same process as for a single predictor model - *only now
+the fitted values are generated using information from two predictor
+variables*.
+
+For instance, let's say we take a completely arbitrary guess at the combination
+of parameter estimates, to see how the fitted values and error vector are
+generated, using two predictor variables:
+
+```{python}
+# Arbitrary guesses for the slopes and intercept.
+education_slope_guess = 1
+income_slope_guess = 1
+intercept_guess = 1
+```
+
+With our guessed parameter estimates, the model with two predictors could be
+written as follows:
+
+```{python}
+# Do not worry about this code, it just prints the mathematical notation below
+# this cell.
+jupyprint("Here is the our model ($ \\vec{y} = b_1 \\vec{x_1} + b_2 \\vec{x_2} + \\text{c} + \\vec{\\varepsilon} $), showing the actual values within the `education`, `income` and `prestige` vectors:")
+jupyprint(f"${arraytex(np.atleast_2d(prestige).T)} = {education_slope_guess} * {arraytex(np.atleast_2d(education).T)} + {income_slope_guess} * {arraytex(np.atleast_2d(income).T)} + {intercept_guess} +" +" \\begin{bmatrix}{} \\text{$\\varepsilon_{1}$} \\\\ \\text{$\\varepsilon_{2}$} \\\\ \\text{$\\varepsilon_{3}$} \\\\ \\text{$\\varepsilon_{4}$} \\\\ \\text{$\\varepsilon_{5}$} \\\\ \\text{$\\varepsilon_{6}$} \\\\ \\text{$\\varepsilon_{7}$} \\\\ \\text{$\\varepsilon_{8}$} \\\\ \\text{$\\varepsilon_{9}$} \\\\ \\text{$\\varepsilon_{10}$} \\\\ \\text{$\\varepsilon_{11}$} \\\\ \\text{$\\varepsilon_{12}$} \\\\ \\text{$\\varepsilon_{13}$} \\\\ \\text{$\\varepsilon_{14}$} \\\\ \\text{$\\varepsilon_{15}$} \\\\ \\end{bmatrix}$")
+```
+
+Remember the formula for the fitted values with a single predictor?:
+
+$\vec{\hat{y}} = b \vec{x} + \text{c}$
+
+As mentioned above, just as the formula for the model, this can be modified for two predictors:
+
+$\vec{\hat{y}} = b_1 \vec{x_1} +  b_2\vec{x_2} + \text{c}$
+
+In our case this is:
+
+$\vec{\hat{y}} = b_1 * $ `education` + $b_2 * $ `income` +   $\text{c} $
+
+Let's calculate the fitted values for the slopes and intercepts we just
+guessed:
+
+```{python}
+# Calculate the fitted values.
+fitted = education_slope_guess * education + income_slope_guess * income + intercept_guess
+fitted
+```
+
+The cell below prints out the process of computing the fitted values, using two
+predictors, in vector form.
+
+It first shows the model, and then shows the values within the vectors in the
+model.
+
+```{python}
+# do not worry about this code, it just prints the mathematical notation below this cell
+jupyprint("$\\vec{\\hat{y}} = b_1 * $ `education` + $b_2 * $ `income` +   $\\text{c} $")
+jupyprint(f"${arraytex(np.atleast_2d(fitted).T)} = {education_slope_guess} * {arraytex(np.atleast_2d(education).T)} + {income_slope_guess} * {arraytex(np.atleast_2d(income).T)} + {intercept_guess}$")
+```
+
+Remember that we get our error vector ($\vec{\varepsilon}$) by subtracting our
+fitted values ($\hat{y}$) from the values of our actual outcome variable:
+
+$$
+\vec{\varepsilon} = \begin{bmatrix}
+    y_1 - \hat{y}_1 \\
+    y_2 - \hat{y}_2 \\
+    \vdots \\
+    y_n - \hat{y}_n
+\end{bmatrix}
+$$
+
+This is performed in the cell below, using the fitted models based on our
+guessed parameter estimates. We reiterate again that these fitted values are
+now generated using *two predictor vectors and two slopes*.
+
+```{python}
+# Calculate the error vector, for our guessed parameter estimates.
+errors = prestige - fitted
+errors
+```
+
+The output of the cell below shows the vectors in the model, and now also shows
+the error vector, along with our guessed parameter estimates.
+
+```{python}
+# Do not worry about this code, it just prints the mathematical notation below
+# this cell.
+jupyprint(f"${arraytex(np.atleast_2d(fitted + errors).T)} = {education_slope_guess} * {arraytex(np.atleast_2d(education).T)} + {income_slope_guess} * {arraytex(np.atleast_2d(income).T)} + {intercept_guess} + {arraytex(np.atleast_2d(errors).T)}$")
+```
+
+We can then square the values in this error vector, and add them up. This gives
+us the sum of the squared error for our particular combination of slopes and
+intercepts ($b_1, b_1, c $) which we arbitrarily guessed.
+
+```{python}
+# Calculate the sum of squared error, from our error vector.
+np.sum(errors**2)
+```
+
+The code cell below lets us make different guesses about the parameter
+estimates (the slopes and intercepts $b_1, b_1, c $) and shows us the error
+vector and the sum of the squared error, for that particular combination.
+
+If you are using this page interactively, try using the sliders below to change
+the parameter estimates, and see how this changes the error vector, and the
+resultant sum of the squared error:
+
+- The first slider controls the $x_1$ (`education`) slope ($b_1$).
+- The second slider controls the $x_2$ (`income`) slope ($b_1$).
+- The third slider controls the intercept.
+
+*Note*: it's best to change these parameters "slowly" e.g. take a deep note of
+how the vectors look with a certain parameter combination, and what the sum of
+the squared error is for that combination. Then change one parameter and see
+how it affects the error vector.
+
+```{python}
+def interactive_notation(edu_slope_guess=1,
+                         inc_slope_guess=1,
+                         intercept_guess=1):
+
+    # calculate the fitted values, for this combination of parameter estimates
+    fitted = edu_slope_guess * education + inc_slope_guess * income + intercept_guess
+
+    # calculate the errors, for this combination of parameter estimates
+    errors = prestige - fitted
+
+    # do not worry about this code, it just prints the mathematical notation below this cell
+    jupyprint("$\\vec{\\hat{y}} = b_1 * $ `education` + $b_2 * $ `income` +   $\\text{c} $")
+    jupyprint(f"${arraytex(np.atleast_2d(fitted + errors).astype(int).T)} = {round(edu_slope_guess, 2)} * {arraytex(np.atleast_2d(education).T)} + {round(inc_slope_guess, 2)} * {arraytex(np.atleast_2d(income).T)} + {round(intercept_guess, 2)} + {arraytex(np.atleast_2d(errors).round(2).T)}$")
+    jupyprint(f"The sum of the squared errors for this combination of parameter estimates is <b> {round(np.sum(errors**2), 2)} </b>")
+
+interact(interactive_notation, edu_slope_guess = (-1, 1, 0.1), inc_slope_guess = (-1, 1, 0.1), intercept_guess = (-10, 10, 0.1))
+```
