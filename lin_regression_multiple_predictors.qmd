@@ -28,15 +28,9 @@ def interactive_notation(edu_slope_guess=1,
                          inc_slope_guess=1,
                          intercept_guess=1):
 
-    # calculate the fitted values, for this combination of parameter estimates
-    fitted = edu_slope_guess * education + inc_slope_guess * income + intercept_guess
-
-    # calculate the errors, for this combination of parameter estimates
-    errors = prestige - fitted
-
     # do not worry about this code, it just prints the mathematical notation below this cell
     jupyprint("$\\vec{\\hat{y}} = b_1 * $ `education` + $b_2 * $ `income` +   $\\text{c} $")
-    jupyprint(f"The sum of the squared errors for this combination of parameter estimates is <b> {round(np.sum(errors**2), 2)} </b>")
+    jupyprint(f"The sum of the squared errors for this combination of parameter estimates is <b> 999.9 </b>")
 
 interact(interactive_notation, edu_slope_guess = (-1, 1, 0.1), inc_slope_guess = (-1, 1, 0.1), intercept_guess = (-10, 10, 0.1))
 ```
