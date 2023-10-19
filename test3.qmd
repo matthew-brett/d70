@@ -1,12 +1,10 @@
-# Linear regression notation for models with multiple predictors
+# Title
 
 ```{python}
-# Import numerical and plotting libraries
 import numpy as np
 import numpy.linalg as npl
 import matplotlib.pyplot as plt
 
-# For interactive widgets.
 from ipywidgets import interact
 
 from IPython.display import display, Markdown
