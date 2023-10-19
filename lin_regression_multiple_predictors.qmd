@@ -39,7 +39,6 @@ def interactive_notation(edu_slope_guess=1,
 
     # do not worry about this code, it just prints the mathematical notation below this cell
     jupyprint("$\\vec{\\hat{y}} = b_1 * $ `education` + $b_2 * $ `income` +   $\\text{c} $")
-    jupyprint(f"${arraytex(np.atleast_2d(fitted + errors).astype(int).T)} = {round(edu_slope_guess, 2)} * {arraytex(np.atleast_2d(education).T)} + {round(inc_slope_guess, 2)} * {arraytex(np.atleast_2d(income).T)} + {round(intercept_guess, 2)} + {arraytex(np.atleast_2d(errors).round(2).T)}$")
     jupyprint(f"The sum of the squared errors for this combination of parameter estimates is <b> {round(np.sum(errors**2), 2)} </b>")
 
 interact(interactive_notation, edu_slope_guess = (-1, 1, 0.1), inc_slope_guess = (-1, 1, 0.1), intercept_guess = (-10, 10, 0.1))
