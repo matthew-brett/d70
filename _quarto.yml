@@ -2,62 +2,7 @@ project:
   type: book
 
 book:
-  title: "Data Science and Machine Learning in Practice"
-  output-file: dsip
-  author: ["Peter Rush", "Matthew Brett"]
+  title: "Book"
   chapters:
     - index.md
-    - part: coding_background.md
-      chapters:
-      - assert.qmd
-      - arrays_and_images.qmd
-      - where_and_argmin.qmd
-      - where_2d.qmd
-      - image_for_optimize.qmd
-      - pathlib.qmd
-      - dictionaries.qmd
-      - pandas_and_dicts.qmd
-      - lambda_functions.qmd
-    - part: reading_formulae.md
-      chapters:
-      - numpy_and_vectors.qmd
-      - algebra_of_sums.md
-      - lin_regression_notation.qmd
-      - lin_regression_multiple_predictors.qmd
-    - part: data_work
-    - part: tools
-      chapters:
-      - installation.md
-      - the-problem-with-notebooks.qmd
-    - references.md
-
-crossref:
-  sec-prefix: Section     # (default is "sec.")
-  fig-prefix: Figure      # (default is "fig.")
-  tbl-prefix: Table       # (default is "tbl.")
-
-bibliography: bib/course_refs.bib
-
-format:
-  html:
-    theme: cosmo
-    css: [style.css, font-awesome.min.css]
-  pdf:
-    documentclass: scrreport
-
-filters:
-  - quarto
-
-knitr_settings:
-  # Comment preceding code output.
-  out_comment: ""
-
-noteout:
-  # Divs, spans to filter before further processing.
-  pre-filter: ['todo', 'comment']
-  filter-divspans: {filter_divspans}
-  nb-flatten-divspans: {nb_flatten_divspans}
-  nb-format: {nb_format}
-  strip-header-nos: false
-  binder-url: https://mybinder.org/v2/gh/resampling-stats/resampling-with/gh-pages?filepath={version}-book/
-  nb-dir: notebooks
+    - lin_regression_multiple_predictors.qmd
